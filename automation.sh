@@ -36,3 +36,16 @@ fi
 cd /var/log/apache2/
 tar -cvf /tmp/jayeshkumar-httpd-logs-${timestamp}.tar *log
 aws s3 cp /tmp/${myname}-httpd-logs-${timestamp}.tar s3://${s3_bucket}/${myname}-httpd-logs-${timestamp}.tar
+docroot="/var/www/html"
+if [[ ! -f ${docroot}/inventory.html ]]; then
+echo -e 'Log Type\t-\tTime Created\t-\tType\t-\tSize' > ${docroot}/inventory.html
+fi
+if [[ -f ${docroot}/inventory.html ]]; then
+size=$(du -h /tmp/${myname}-httpd-logs-${timestamp}.tar | awk '{print $1}')
+echo -e "httpd-logs\t-\t${timestamp}\t-\ttar\t-\t${size}" >> ${docroot}/inventory.html
+fi
+
+if [[ ! -f /etc/cron.d/automation ]]; then
+echo "0 0 * * * root  /root/Automation_Project/automation.sh" >>  /etc/cron.d/automation
+chmod 766 /etc/cron.d/automation
+fi
